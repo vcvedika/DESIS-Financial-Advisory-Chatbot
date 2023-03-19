@@ -11,6 +11,7 @@ with open('portfolio.pkl', 'rb') as f:
     portfolio = pickle.load(f)
 
 print(portfolio)
+# portfolio = {"AAPL": 100, "GOOG": 200, "AMZN": 0, "TSLA": 50}
 
 
 def save_portfolio():
@@ -21,7 +22,8 @@ def save_portfolio():
 def add_portfolio():
     stock = input("Which stock do you want to add: ")
     amount = input("How many shares do you want to add: ")
-
+    stock.strip()
+    amount.strip()
     if stock in portfolio.keys():
         portfolio[stock] += int(amount)
     else:
@@ -33,15 +35,19 @@ def add_portfolio():
 def remove_portfolio():
     stock = input("Which stock do you want to sell: ")
     amount = input("How many shares do you want to sell: ")
-
+    stock.strip()
+    amount.strip()
     if stock in portfolio.keys():
-        if amount <= portfolio[stock]:
-            portfolio[stock] -= amount
-            save_portfolio()
+        if int(amount) <= portfolio[stock]:
+            portfolio[stock] -= int(amount)
         else:
             print(f"You don't have enough shares of {stock}")
     else:
         print(f"You don't have any shares of {stock}")
+    for stock, count in list(portfolio.items()):
+        if count == 0:
+            del portfolio[stock]
+    save_portfolio()
 
 
 def show_portfolio():
@@ -51,16 +57,21 @@ def show_portfolio():
 
 
 def portfolio_worth():
-    sum = 0
-    for stock in portfolio.keys():
-        data = yf.download(stock, start=dt.datetime.now() - dt.timedelta(days=1),
-                           end=dt.datetime.now())
-        price = data['Close'].iloc[-1]
-        sum += price
-    print(f"Your portfolio is worth ${sum}")
+    if len(portfolio) == 0:
+        print('You have no stocks in your portfolio!')
+        return
+    portfolio_value = 0
+    prices = yf.download(list(portfolio.keys()), period="1d")[
+        "Adj Close"].iloc[-1]
+
+    portfolio_value = sum(prices * pd.Series(portfolio))
+    print(f"Your portfolio is worth ${portfolio_value}")
 
 
 def portfolio_gains():
+    if len(portfolio) == 0:
+        print('You have no stocks in your portfolio!')
+        return
     starting_date = input("Enter a date for comparison (YYYY-MM-DD): ")
     sum_now = 0
     sum_then = 0
