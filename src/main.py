@@ -22,7 +22,7 @@ bot_token_secret_name = "sandeepsbotkey"
 API_TOKEN  = client.get_secret(bot_token_secret_name)
 print("####### Able to get api token!!")
 WEBHOOK_HOST = 'educarefinancebotg7.azurewebsites.net'
-WEBHOOK_PORT = 8000  # 443, 80, 88 or 8443 (port need to be 'open')
+WEBHOOK_PORT = 80  # 443, 80, 88 or 8443 (port need to be 'open')
 WEBHOOK_LISTEN = '0.0.0.0'  # In some VPS you may need to put here the IP addr
 
 WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
