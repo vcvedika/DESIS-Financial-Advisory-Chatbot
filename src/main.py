@@ -50,7 +50,7 @@ app = flask.Flask(__name__)
 # Empty webserver index, return nothing, just http 200
 @app.route('/', methods=['GET', 'HEAD'])
 def index():
-    return ''
+    return 'Server up'
 
 
 # Process webhook calls
