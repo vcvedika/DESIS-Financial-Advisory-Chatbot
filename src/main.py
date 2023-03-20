@@ -25,8 +25,8 @@ WEBHOOK_HOST = 'educarefinancebotg7.azurewebsites.net'
 WEBHOOK_PORT = 80  # 443, 80, 88 or 8443 (port need to be 'open')
 WEBHOOK_LISTEN = '0.0.0.0'  # In some VPS you may need to put here the IP addr
 
-WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
-WEBHOOK_SSL_PRIV = './webhook_pkey.pem'  # Path to the ssl private key
+#WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
+#WEBHOOK_SSL_PRIV = './webhook_pkey.pem'  # Path to the ssl private key
 
 # Quick'n'dirty SSL certificate generation:
 #
@@ -85,11 +85,9 @@ bot.remove_webhook()
 time.sleep(0.1)
 
 # Set webhook
-bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH,
-                certificate=open(WEBHOOK_SSL_CERT, 'r'))
+bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH)
 
 # Start flask server
 app.run(host=WEBHOOK_LISTEN,
         port=WEBHOOK_PORT,
-        ssl_context=(WEBHOOK_SSL_CERT, WEBHOOK_SSL_PRIV),
         debug=True)
