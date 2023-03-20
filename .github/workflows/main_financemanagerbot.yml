@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'FinanceManagerBot'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_742B5BDF14274537A99F45ED388C62B0 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E93B2288358841D3849B786A0868E682 }}
