@@ -10,7 +10,7 @@ import telebot
 import flask
 import logging
 import time
-
+import os
 
 #keyVaultName = "educarefinancebotg7"
 #KVUri = f"https://{keyVaultName}.vault.azure.net"
@@ -26,8 +26,8 @@ WEBHOOK_HOST = 'educarefinancebotg7.azurewebsites.net'
 WEBHOOK_PORT = 8000  # 443, 80, 88 or 8443 (port need to be 'open')
 WEBHOOK_LISTEN = '0.0.0.0'  # In some VPS you may need to put here the IP addr
 
-WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
-WEBHOOK_SSL_PRIV = './webhook_pkey.pem'  # Path to the ssl private key
+WEBHOOK_SSL_CERT = os.path.join(os.getcwd(),'webhook_cert.pem')  # Path to the ssl certificate
+WEBHOOK_SSL_PRIV = os.path.join(os.getcwd(),'webhook_pkey.pem') # Path to the ssl private key
 
 # Quick'n'dirty SSL certificate generation:
 #
