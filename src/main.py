@@ -4,22 +4,23 @@
 # This is a simple echo bot using decorators and webhook with flask
 # It echoes any incoming text messages and does not use the polling method.
 
-from azure.keyvault.secrets import SecretClient
-from azure.identity import DefaultAzureCredential
+#from azure.keyvault.secrets import SecretClient
+#from azure.identity import DefaultAzureCredential
 import telebot
 import flask
 import logging
 import time
 
 
-keyVaultName = "educarefinancebotg7"
-KVUri = f"https://{keyVaultName}.vault.azure.net"
+#keyVaultName = "educarefinancebotg7"
+#KVUri = f"https://{keyVaultName}.vault.azure.net"
 
-credential = DefaultAzureCredential()
-client = SecretClient(vault_url=KVUri, credential=credential)
+#credential = DefaultAzureCredential()
+#client = SecretClient(vault_url=KVUri, credential=credential)
 
-bot_token_secret_name = "sandeepsbotkey"
-API_TOKEN  = client.get_secret(bot_token_secret_name)
+#bot_token_secret_name = "sandeepsbotkey"
+#API_TOKEN  = client.get_secret(bot_token_secret_name)
+API_TOKEN = "6198049534:AAHihuaR2zrenr0XaVg6aNHeNEPlf8J5PVg"
 print("####### Able to get api token!!")
 WEBHOOK_HOST = 'educarefinancebotg7.azurewebsites.net'
 WEBHOOK_PORT = 8000  # 443, 80, 88 or 8443 (port need to be 'open')
