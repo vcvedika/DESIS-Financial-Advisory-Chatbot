@@ -1,95 +1,90 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# This is a simple echo bot using decorators and webhook with flask
-# It echoes any incoming text messages and does not use the polling method.
-
-#from azure.keyvault.secrets import SecretClient
-#from azure.identity import DefaultAzureCredential
-import telebot
-import flask
-import logging
-import time
 import os
+from neural_intents import GenericAssistant
+import matplotlib.pyplot as plt
+import yfinance as yf
+import pickle
+import sys
+import datetime as dt
+import plotly.graph_objects as go
+import telebot
+from io import StringIO
+import pandas as pd
 
-#keyVaultName = "educarefinancebotg7"
-#KVUri = f"https://{keyVaultName}.vault.azure.net"
+# Your own bot token
+BOT_TOKEN = "6198049534:AAHihuaR2zrenr0XaVg6aNHeNEPlf8J5PVg"
 
-#credential = DefaultAzureCredential()
-#client = SecretClient(vault_url=KVUri, credential=credential)
+bot = telebot.TeleBot(BOT_TOKEN)
 
-#bot_token_secret_name = "sandeepsbotkey"
-#API_TOKEN  = client.get_secret(bot_token_secret_name)
-API_TOKEN = "6198049534:AAHihuaR2zrenr0XaVg6aNHeNEPlf8J5PVg"
-print("####### Able to get api token!!")
-WEBHOOK_HOST = 'educarefinancebotg7.azurewebsites.net'
-WEBHOOK_PORT = 8000  # 443, 80, 88 or 8443 (port need to be 'open')
-WEBHOOK_LISTEN = '0.0.0.0'  # In some VPS you may need to put here the IP addr
-
-WEBHOOK_SSL_CERT = os.path.join(os.getcwd(),'webhook_cert.pem')  # Path to the ssl certificate
-WEBHOOK_SSL_PRIV = os.path.join(os.getcwd(),'webhook_pkey.pem') # Path to the ssl private key
-
-# Quick'n'dirty SSL certificate generation:
-#
-# openssl genrsa -out webhook_pkey.pem 2048
-# openssl req -new -x509 -days 3650 -key webhook_pkey.pem -out webhook_cert.pem
-#
-# When asked for "Common Name (e.g. server FQDN or YOUR name)" you should reply
-# with the same value in you put in WEBHOOK_HOST
-
-WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
-WEBHOOK_URL_PATH = "/%s/" % (API_TOKEN)
-
-logger = telebot.logger
-telebot.logger.setLevel(logging.INFO)
-
-bot = telebot.TeleBot(API_TOKEN)
-
-app = flask.Flask(__name__)
-
-
-# Empty webserver index, return nothing, just http 200
-@app.route('/', methods=['GET', 'HEAD'])
-def index():
-    return 'Server up'
-
-# Process webhook calls
-@app.route(WEBHOOK_URL_PATH, methods=['POST'])
-def webhook():
-    if flask.request.headers.get('content-type') == 'application/json':
-        json_string = flask.request.get_data().decode('utf-8')
-        update = telebot.types.Update.de_json(json_string)
-        bot.process_new_updates([update])
-        return ''
-    else:
-        flask.abort(403)
-
-
-# Handle '/start' and '/help'
-@bot.message_handler(commands=['help', 'start'])
+@bot.message_handler(commands=['start', 'hello'])
 def send_welcome(message):
-    bot.reply_to(message,
-                 ("Hi there, I am EchoBot.\n"
-                  "I am here to echo your kind words back to you."))
+    bot.reply_to(message, "Howdy, how are you doing?")
 
 
-# Handle all other messages
-@bot.message_handler(func=lambda message: True, content_types=['text'])
-def echo_message(message):
-    bot.reply_to(message, message.text)
+@bot.message_handler(func=lambda msg: True)
+def echo_all(message):
+    print(f"Received message: {message.text}")
+    add_reply, prob, reply_msg = assistant.request(message.text, message)
+    print(F"Probability: {prob}")
+    if add_reply:
+        bot.reply_to(message, str(reply_msg))
 
+# Handle document uploads.
+@bot.message_handler(func=lambda msg: True, content_types=['document'])
+def command_handle_any_document(message):
+    # This is a file upload.
+    file_url = bot.get_file_url(message.document.file_id)
+    print(f"Downloading {file_url}")
+    try:
+        df = pd.read_csv(file_url)
+        str_io = StringIO()
+        df.to_html(buf=str_io, classes='table table-striped')
+        str_io.seek(0)
+        bot.send_document(message.chat.id, str_io, visible_file_name="analysis_report.html")
+        bot.send_message(message.chat.id, "Analysis complete!")
+        return
+    except Exception as e:
+        print(f"Error in reading file {e}")
+        bot.reply_to(message, "Cannot read the uploaded file. Please try again.")
 
-# Remove webhook, it fails sometimes the set if there is a previous webhook
-bot.remove_webhook()
+def add_portfolio(message):
+    bot.reply_to(message, "This is add portfolio intent")
 
-time.sleep(0.1)
+def remove_portfolio(message):
+    bot.reply_to(message, "This is remove portfolio intent")
 
-# Set webhook
-bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH,
-                certificate=open(WEBHOOK_SSL_CERT, 'r'))
+def show_portfolio(message):
+    bot.reply_to(message, "This is show portfolio intent")
 
-# Start flask server
-app.run(host=WEBHOOK_LISTEN,
-        port=WEBHOOK_PORT,
-        ssl_context=(WEBHOOK_SSL_CERT, WEBHOOK_SSL_PRIV),
-        debug=True)
+def portfolio_worth(message):
+    bot.reply_to(message, "This is portfolio worth intent")
+
+def portfolio_gains(message):
+    bot.reply_to(message, "This is portfolio gains intent")
+
+def plot_chart(message):
+    bot.reply_to(message, "This is plot chart intent")
+
+def bye(message):
+    bot.reply_to(message, "This is good bye intent")
+
+def default_handler(message):
+    bot.reply_to(message, "I did not understand.")
+
+mappings = {
+    'plot_chart': plot_chart,
+    'add_portfolio': add_portfolio,
+    'remove_portfolio': remove_portfolio,
+    'show_portfolio': show_portfolio,
+    'portfolio_worth': portfolio_worth,
+    'portfolio_gains': portfolio_gains,
+    'bye': bye,
+    None: default_handler
+}
+
+assistant = GenericAssistant(
+    'src/intents.json', mappings, "financial_assitant_model")
+
+assistant.train_model()
+assistant.save_model()    
+
+bot.infinity_polling()

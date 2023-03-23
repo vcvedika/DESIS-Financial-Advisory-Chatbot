@@ -2,3 +2,7 @@ telebot
 flask
 azure-keyvault-secrets
 azure-identity
+pandas
+yfinance
+plotly
+tensorflow
