@@ -235,7 +235,7 @@ mappings = {
 }
 
 assistant = GenericAssistant(
-    'src/intents.json', mappings, "financial_assitant_model")
+    'intents.json', mappings, "financial_assitant_model")
 
 assistant.train_model()
 assistant.save_model()
