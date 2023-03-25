@@ -2,7 +2,10 @@ telebot
 flask
 azure-keyvault-secrets
 azure-identity
+numpy
 pandas
 yfinance
 plotly
 tensorflow
+pickle
+matplotlib
