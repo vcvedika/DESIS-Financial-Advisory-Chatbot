@@ -10,19 +10,42 @@ import telebot
 from io import StringIO
 import pandas as pd
 
-with open('portfolio.pkl', 'rb') as f:
-    portfolio = pickle.load(f)
-
 # Your own bot token
 BOT_TOKEN = "6139937589:AAEPEhmEBgPcpv--RGLCIPNPoMQsCufhH9U"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
+portfolio = {}
+name = ''
+
+users = {
+    'Aastha': 'aastha_portfolio.pkl',
+    'Dakshita': 'dakshita_portfolio.pkl',
+    'Pranjal': 'pranjal_portfolio.pkl',
+    'Soumi': 'soumi_portfolio.pkl',
+    'Vedika': 'vedika_portfolio.pkl'
+}
 
 @bot.message_handler(commands=['start', 'hello'])
 def send_welcome(message):
-    bot.reply_to(message, "Howdy, how are you doing?")
+    global name
+    name = bot.reply_to(message, "Hi there, please enter your name")
+    bot.register_next_step_handler(name, name_handler)
 
+def name_handler(message):
+    global portfolio
+    name = message.text
+    if name in users.keys():
+        file_name = name.lower() + '_portfolio.pkl'
+        with open(file_name, 'rb') as f:
+            portfolio = pickle.load(f)
+    else:
+        file_name = name.lower() + '_portfolio.pkl'
+        open(file_name, 'wb')
+        portfolio = {}
+        users[name] = file_name
+    bot.reply_to(message, f"Welcome, {name}")
+    
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
@@ -33,8 +56,6 @@ def echo_all(message):
         bot.reply_to(message, str(reply_msg))
 
 # Handle document uploads.
-
-
 @bot.message_handler(func=lambda msg: True, content_types=['document'])
 def command_handle_any_document(message):
     # This is a file upload.
@@ -52,21 +73,14 @@ def command_handle_any_document(message):
     except Exception as e:
         print(f"Error in reading file {e}")
         bot.reply_to(
-            message, "Cannot read the uploaded file. Please try again.")
+            message, "Cannot read the uploaded file. Please try again.") 
 
-
-def save_portfolio():
-    with open('portfolio.pkl', 'wb') as f:
-        pickle.dump(portfolio, f)
 
 # ADDING TO PORTFOLIO
-
-
 def add_portfolio(message):
     stock_name = bot.reply_to(
         message, "Which stock do you want to buy?")
     bot.register_next_step_handler(stock_name, add_stock_name_handler)
-
 
 def add_stock_name_handler(message):
     stock_name = message.text
@@ -76,25 +90,23 @@ def add_stock_name_handler(message):
     bot.register_next_step_handler(
         stock_number, add_stock_number_handler, stock_name)
 
-
 def add_stock_number_handler(message, stock_name):
     stock_number = message.text
     if stock_name in portfolio.keys():
         portfolio[stock_name] += int(stock_number)
     else:
         portfolio[stock_name] = int(stock_number)
-    save_portfolio()
-
+    with open(users[name], 'wb') as f:
+        pickle.dump(portfolio, f)
     bot.send_message(
         message.chat.id, f"You have bought {stock_number} shares of {stock_name}.")
 
 
-# REMOVE TO PORTFOLIO
+# REMOVE FROM PORTFOLIO
 def remove_portfolio(message):
     stock_name = bot.reply_to(
         message, "Which stock do you want to sell?")
     bot.register_next_step_handler(stock_name, remove_stock_name_handler)
-
 
 def remove_stock_name_handler(message):
     stock_name = message.text
@@ -103,7 +115,6 @@ def remove_stock_name_handler(message):
     # Next message will call the age_handler function
     bot.register_next_step_handler(
         stock_number, remove_stock_number_handler, stock_name)
-
 
 def remove_stock_number_handler(message, stock_name):
     stock_number = message.text
@@ -119,19 +130,25 @@ def remove_stock_number_handler(message, stock_name):
     for stock, count in list(portfolio.items()):
         if count == 0:
             del portfolio[stock]
-    save_portfolio()
+    with open(users[name], 'wb') as f:
+        pickle.dump(portfolio, f)
 
     bot.send_message(
         message.chat.id, f"You have sold {stock_number} shares of {stock_name}.")
 
 
+# DISPLAYING PORTFOLIO CONTENTS
 def show_portfolio(message):
-    bot.reply_to(message, "This is your portfolio:")
-    for stock in portfolio.keys():
-        bot.send_message(
-            message.chat.id, f"You own {portfolio[stock]} shares of {stock}")
+    if len(portfolio) == 0:
+        bot.reply_to(message, "Your portfolio is empty")
+    else:
+        bot.reply_to(message, "This is your portfolio:")
+        for stock in portfolio.keys():
+            bot.send_message(
+                message.chat.id, f"You own {portfolio[stock]} shares of {stock}")
 
 
+# DISPLAYING PORTFOLIO VALUE
 def portfolio_worth(message):
     if len(portfolio) == 0:
         bot.reply_to(message, "You have no stocks in your portfolio!")
@@ -144,6 +161,7 @@ def portfolio_worth(message):
     bot.reply_to(message, f"Your portfolio is worth ${portfolio_value}")
 
 
+# DISPLAYING PORTFOLIO GAINS OVER TIME
 def portfolio_gains(message):
     if len(portfolio) == 0:
         print('You have no stocks in your portfolio!')
@@ -152,12 +170,10 @@ def portfolio_gains(message):
         message, "Enter a date for comparison (YYYY-MM-DD): ")
     bot.register_next_step_handler(date, portfolio_gains_handler)
 
-
 def portfolio_gains_handler(message):
     starting_date = message.text
     sum_now = 0
     sum_then = 0
-
     try:
         for stock in portfolio.keys():
             data = yf.download(stock, start=starting_date,
@@ -177,11 +193,11 @@ def portfolio_gains_handler(message):
             message, "There was no trading on this day")
 
 
+# DISPLAYING THE CANDLESTICK CHART FOR A STOCK
 def plot_chart(message):
     stock_name = bot.reply_to(
         message, "Which stock do you want to plot?")
     bot.register_next_step_handler(stock_name, plotting_handler1)
-
 
 def plotting_handler1(message):
     stock_name = message.text
@@ -190,7 +206,6 @@ def plotting_handler1(message):
     bot.register_next_step_handler(
         starting_date, plotting_handler2, stock_name)
 
-
 def plotting_handler2(message, stock_name):
     starting_date = message.text
     time_interval = bot.reply_to(
@@ -198,14 +213,11 @@ def plotting_handler2(message, stock_name):
     bot.register_next_step_handler(
         time_interval, plotting_handler3, stock_name, starting_date)
 
-
 def plotting_handler3(message, stock_name, starting_date):
     time_interval = message.text
     plt.style.use('dark_background')
-
     start_ = dt.datetime.strptime(starting_date, "%d/%m/%Y")
     end_ = dt.datetime.now()
-
     df = yf.download(stock_name, start=start_,
                      end=end_, interval=time_interval)
     print(df)
@@ -214,11 +226,13 @@ def plotting_handler3(message, stock_name, starting_date):
     fig.show()
 
 
+# SAY GOODBYE
 def bye(message):
     bot.send_message(message.chat.id, "Goodbye!")
     sys.exit(0)
 
 
+# DEFAULT HANDLER
 def default_handler(message):
     bot.reply_to(message, "I did not understand.")
 
@@ -239,6 +253,6 @@ assistant = GenericAssistant(
 
 assistant.train_model()
 assistant.save_model()
-
+# assistant.load_model()
 
 bot.infinity_polling()

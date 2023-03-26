@@ -1,8 +1,6 @@
 from tensorflow.keras.models import load_model
-# from keras.callbacks import LearningRateScheduler
-# from keras.optimizers import SGD
-from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers.legacy import SGD
+from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.models import Sequential
 from nltk.stem import WordNetLemmatizer
 import nltk
@@ -16,23 +14,29 @@ import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+
 nltk.download('punkt', quiet=True)
 nltk.download('wordnet', quiet=True)
 
 
 class IAssistant(metaclass=ABCMeta):
+
     @abstractmethod
     def train_model(self):
         """ Implemented in child class """
+
     @abstractmethod
     def request_tag(self, message):
         """ Implemented in child class """
+
     @abstractmethod
     def get_tag_by_id(self, id):
         """ Implemented in child class """
+
     @abstractmethod
     def request_method(self, message):
         """ Implemented in child class """
+
     @abstractmethod
     def request(self, message):
         """ Implemented in child class """
@@ -53,13 +57,8 @@ class GenericAssistant(IAssistant):
     def load_json_intents(self, intents):
         self.intents = json.loads(open(intents).read())
 
-    def lr_decay(epoch):
-        initial_lr = 0.01
-        decay_rate = 10**(-6)
-        new_lr = initial_lr / (1.0 + decay_rate * epoch)
-        return new_lr
-
     def train_model(self):
+
         self.words = []
         self.classes = []
         documents = []
@@ -108,8 +107,7 @@ class GenericAssistant(IAssistant):
         self.model.add(Dropout(0.5))
         self.model.add(Dense(len(train_y[0]), activation='softmax'))
 
-        sgd = SGD(learning_rate=0.01, momentum=0.9,
-                  nesterov=True, decay=1e-6)
+        sgd = SGD(learning_rate=0.01, momentum=0.9, nesterov=True, decay=1e-6)
         self.model.compile(loss='categorical_crossentropy',
                            optimizer=sgd, metrics=['accuracy'])
 
