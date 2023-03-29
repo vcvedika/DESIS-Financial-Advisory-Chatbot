@@ -61,7 +61,8 @@
                 "I want to remove from my portfolio",
                 "I sold an old stock",
                 "I am selling a stock",
-                "I sold an old stock"
+                "I sold a stock",
+                "I want to sell a stock"
             ],
             "responses": [
                 "Removing Stock"
@@ -138,6 +139,22 @@
             ],
             "responses": [
                 "Portfolio Worth"
+            ]
+        },
+        {
+            "tag": "save_money",
+            "patterns": [
+                "I want to save some money",
+                "I want to buy something expensive",
+                "I need to pay someone back",
+                "Help me manage my expenses",
+                "Manage my expenses",
+                "I need to buy something",
+                "I need to start saving",
+                "I need to save some money"
+            ],
+            "responses": [
+                "Saving Money"
             ]
         },
         {

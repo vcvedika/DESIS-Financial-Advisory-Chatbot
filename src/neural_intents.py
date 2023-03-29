@@ -1,3 +1,4 @@
+# one person explain this
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers.legacy import SGD
 from tensorflow.keras.layers import Dense, Dropout
@@ -58,6 +59,7 @@ class GenericAssistant(IAssistant):
         self.intents = json.loads(open(intents).read())
 
     def train_model(self):
+        # put a debug pointer here
 
         self.words = []
         self.classes = []
@@ -75,7 +77,6 @@ class GenericAssistant(IAssistant):
         self.words = [self.lemmatizer.lemmatize(
             w.lower()) for w in self.words if w not in ignore_letters]
         self.words = sorted(list(set(self.words)))
-
         self.classes = sorted(list(set(self.classes)))
 
         training = []
