@@ -12,24 +12,23 @@ import pandas as pd
 import numpy as np
 
 # Your own bot token
-BOT_TOKEN = "6139937589:AAEPEhmEBgPcpv--RGLCIPNPoMQsCufhH9U"
+BOT_TOKEN = "6198049534:AAHihuaR2zrenr0XaVg6aNHeNEPlf8J5PVg"
 
 bot = telebot.TeleBot(BOT_TOKEN)
-
 portfolio = {}
 name = ''
 goal = 0
 file_name = ''
 
-# users = {
-#     'Aastha': 'aastha_portfolio.pkl',
-#     'Dakshita': 'dakshita_portfolio.pkl',
-#     'Pranjal': 'pranjal_portfolio.pkl',
-#     'Soumi': 'soumi_portfolio.pkl',
-#     'Vedika': 'vedika_portfolio.pkl'
-# }
+users = {
+     'Aastha': 'aastha_portfolio.pkl',
+     'Dakshita': 'dakshita_portfolio.pkl',
+     'Pranjal': 'pranjal_portfolio.pkl',
+     'Soumi': 'soumi_portfolio.pkl',
+     'Vedika': 'vedika_portfolio.pkl'
+ }
 
-users = ['Aastha', 'Dakshita', 'Pranjal', 'Soumi', 'Vedika']
+#users = ['Aastha', 'Dakshita', 'Pranjal', 'Soumi', 'Vedika']
 
 
 @bot.message_handler(commands=['start', 'hello'])
@@ -341,24 +340,28 @@ def bye(message):
 def default_handler(message):
     bot.reply_to(message, "I did not understand.")
 
+def _initialize_model():
 
-mappings = {
-    'plot_chart': plot_chart,
-    'add_portfolio': add_portfolio,
-    'remove_portfolio': remove_portfolio,
-    'show_portfolio': show_portfolio,
-    'portfolio_worth': portfolio_worth,
-    'portfolio_gains': portfolio_gains,
-    'save_money': save_money,
-    'bye': bye,
-    None: default_handler
-}
+    mappings = {
+        'plot_chart': plot_chart,
+        'add_portfolio': add_portfolio,
+        'remove_portfolio': remove_portfolio,
+        'show_portfolio': show_portfolio,
+        'portfolio_worth': portfolio_worth,
+        'portfolio_gains': portfolio_gains,
+        'save_money': save_money,
+        'bye': bye,
+        None: default_handler
+    }
 
-assistant = GenericAssistant(
-    'intents.json', mappings, "financial_assitant_model")
+    assistant = GenericAssistant(
+        'intents.json', mappings, "financial_assitant_model")
 
-assistant.train_model()
-assistant.save_model()
-# assistant.load_model()
+    #assistant.train_model()
+    #assistant.save_model()
+    assistant.load_model()
+    return assistant
 
+assistant = _initialize_model()
+print("Started polling")
 bot.infinity_polling()
