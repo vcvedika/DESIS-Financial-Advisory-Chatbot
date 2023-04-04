@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 # Your own bot token
-BOT_TOKEN = "6198049534:AAHihuaR2zrenr0XaVg6aNHeNEPlf8J5PVg"
+BOT_TOKEN = "6139937589:AAEPEhmEBgPcpv--RGLCIPNPoMQsCufhH9U"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 portfolio = {}
@@ -21,14 +21,12 @@ goal = 0
 file_name = ''
 
 users = {
-     'Aastha': 'aastha_portfolio.pkl',
-     'Dakshita': 'dakshita_portfolio.pkl',
-     'Pranjal': 'pranjal_portfolio.pkl',
-     'Soumi': 'soumi_portfolio.pkl',
-     'Vedika': 'vedika_portfolio.pkl'
- }
-
-#users = ['Aastha', 'Dakshita', 'Pranjal', 'Soumi', 'Vedika']
+    'Aastha': 'aastha_portfolio.pkl',
+    'Dakshita': 'dakshita_portfolio.pkl',
+    'Pranjal': 'pranjal_portfolio.pkl',
+    'Soumi': 'soumi_portfolio.pkl',
+    'Vedika': 'vedika_portfolio.pkl'
+}
 
 
 @bot.message_handler(commands=['start', 'hello'])
@@ -227,16 +225,22 @@ def plotting_handler3(message, stock_name, starting_date):
 
 # SAVING MONEY PLAN
 def save_money(message):
-    global goal
-    goal = bot.reply_to(
+    # global goal
+    reply = bot.reply_to(
         message, "How much money do you want to save? Please enter the value in rupees.")
+    bot.register_next_step_handler(reply, command_handle_any_document1)
+
+
+def command_handle_any_document1(message):
+    goal = message.text
+    goal = float(goal)
     bot.send_message(
         message.chat.id, "I will also need information regarding your expenses, so please upload your bank statement in csv format.")
-    bot.register_next_step_handler(goal, command_handle_any_document)
+    bot.register_next_step_handler(message, command_handle_any_document2, goal)
 
 
 @bot.message_handler(func=lambda msg: True, content_types=['document'])
-def command_handle_any_document(message):
+def command_handle_any_document2(message, goal):
     # This is a file upload.
     file_url = bot.get_file_url(message.document.file_id)
     print(f"Downloading {file_url}")
@@ -340,6 +344,7 @@ def bye(message):
 def default_handler(message):
     bot.reply_to(message, "I did not understand.")
 
+
 def _initialize_model():
 
     mappings = {
@@ -357,10 +362,11 @@ def _initialize_model():
     assistant = GenericAssistant(
         'intents.json', mappings, "financial_assitant_model")
 
-    #assistant.train_model()
-    #assistant.save_model()
+    # assistant.train_model()
+    # assistant.save_model()
     assistant.load_model()
     return assistant
+
 
 assistant = _initialize_model()
 print("Started polling")
