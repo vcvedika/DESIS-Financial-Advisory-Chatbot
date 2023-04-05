@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 # Your own bot token
-BOT_TOKEN = "6033600348:AAHq9zH0hvf03NiV2E8YHtybytb9064JlEo"
+BOT_TOKEN = "6139937589:AAEPEhmEBgPcpv--RGLCIPNPoMQsCufhH9U"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 portfolio = {}
@@ -23,7 +23,7 @@ file_name = ''
 users = {
     'Aastha': 'aastha_portfolio.pkl',
     'Dakshita': 'dakshita_portfolio.pkl',
-    'Pranjal': 'pranjal_portfolio.pkl',
+    # 'Pranjal': 'pranjal_portfolio.pkl',
     'Soumi': 'soumi_portfolio.pkl',
     'Vedika': 'vedika_portfolio.pkl'
 }
@@ -246,6 +246,7 @@ def command_handle_any_document2(message, goal):
     try:
         df = pd.read_csv(file_url)
         str_io = StringIO()
+        # no change in df
         df.to_html(buf=str_io, classes='table table-striped')
         str_io.seek(0)
         user_adjust_percentage = [0.0, 0.05, 0.10, 0.20]
@@ -256,11 +257,12 @@ def command_handle_any_document2(message, goal):
                 "Essential": 2, "Non-Essential": 3}
         user_category_ranking = [0, 0, 0, 0]
         for i in range(len(df['row'])):
+            # hur class ke liye debit store kr rha
             user_category_ranking[dict[df['Class'][i]]] += df['Debit'][i]
         saved = 0
         cred = 0
         deb = 0
-        categories = df['Description'].unique()
+        categories = df['Description'].unique()  # jewellery, clothing
         existing_expense = {}
         new_expense = {}
         c2 = ["Important", "Non-important",
@@ -319,6 +321,9 @@ def command_handle_any_document2(message, goal):
         ans = "Follow the estimated plan for " + n + " months"
         df['Estimated Expense'] = user_new_budget
         df['Saving'] = saving
+        # CHANGE name of check file
+        df.to_csv(
+            r"C:\Users\Aastha Khandelwal\Desktop\DESIS Ascend Educare 2022\Project\desis-final-project\SavedCSV\Check.csv", index=False)
         df.to_html(buf=str_io, classes='table table-striped')
         str_io.seek(0)
         bot.send_document(message.chat.id, str_io,
