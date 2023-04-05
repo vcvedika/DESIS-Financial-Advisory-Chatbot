@@ -10,6 +10,8 @@ import telebot
 from io import StringIO
 import pandas as pd
 import numpy as np
+import csv
+from pymongo import MongoClient
 
 # Your own bot token
 BOT_TOKEN = "6139937589:AAEPEhmEBgPcpv--RGLCIPNPoMQsCufhH9U"
@@ -20,13 +22,21 @@ name = ''
 goal = 0
 file_name = ''
 
-users = {
+users_pf = {
     'Aastha': 'aastha_portfolio.pkl',
     'Dakshita': 'dakshita_portfolio.pkl',
     'Pranjal': 'pranjal_portfolio.pkl',
     'Soumi': 'soumi_portfolio.pkl',
     'Vedika': 'vedika_portfolio.pkl'
 }
+
+# users_bs = {
+#     'Aastha': 'aastha_statement.csv',
+#     'Dakshita': 'dakshita_statement.csv',
+#     'Pranjal': 'pranjal_statement.csv',
+#     'Soumi': 'soumi_statement.csv',
+#     'Vedika': 'vedika_statement.csv'
+# }
 
 
 @bot.message_handler(commands=['start', 'hello'])
@@ -43,7 +53,7 @@ def name_handler(message):
     global file_name
     name = message.text
     print(name)
-    if name in users:
+    if name in users_pf:
         file_name = str(name).lower() + '_portfolio.pkl'
         with open(file_name, 'rb') as f:
             portfolio = pickle.load(f)
@@ -52,7 +62,7 @@ def name_handler(message):
         file_name = str(name).lower() + '_portfolio.pkl'
         open(file_name, 'wb')
         portfolio = {}
-        users[name] = file_name
+        users_pf[name] = file_name
         bot.reply_to(message, f"Welcome, {name}")
     print(file_name)
 
@@ -241,7 +251,6 @@ def command_handle_any_document1(message):
 
 @bot.message_handler(func=lambda msg: True, content_types=['document'])
 def command_handle_any_document2(message, goal):
-    # This is a file upload.
     file_url = bot.get_file_url(message.document.file_id)
     print(f"Downloading {file_url}")
     try:

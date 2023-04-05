@@ -1,4 +1,3 @@
-# one person explain this
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers.legacy import SGD
 from tensorflow.keras.layers import Dense, Dropout
@@ -48,7 +47,8 @@ class GenericAssistant(IAssistant):
     def __init__(self, intents, intent_methods={}, model_name="assistant_model", base_dir=None):
         self.intents = intents
         self.intent_methods = intent_methods
-        self.base_dir = base_dir if base_dir else os.path.dirname(os.path.realpath(__file__))
+        self.base_dir = base_dir if base_dir else os.path.dirname(
+            os.path.realpath(__file__))
         self.model_name = os.path.join(self.base_dir, model_name)
 
         if intents.endswith(".json"):
@@ -57,7 +57,8 @@ class GenericAssistant(IAssistant):
         self.lemmatizer = WordNetLemmatizer()
 
     def load_json_intents(self, intents):
-        self.intents = json.loads(open(os.path.join(self.base_dir, intents)).read())
+        self.intents = json.loads(
+            open(os.path.join(self.base_dir, intents)).read())
 
     def train_model(self):
         # put a debug pointer here
