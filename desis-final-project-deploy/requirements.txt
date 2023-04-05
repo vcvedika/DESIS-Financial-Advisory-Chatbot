@@ -1,4 +1,0 @@
-telebot
-flask
-azure-keyvault-secrets
-azure-identity

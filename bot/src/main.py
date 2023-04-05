@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 # Your own bot token
-BOT_TOKEN = "6139937589:AAEPEhmEBgPcpv--RGLCIPNPoMQsCufhH9U"
+BOT_TOKEN = "6033600348:AAHq9zH0hvf03NiV2E8YHtybytb9064JlEo"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 portfolio = {}
@@ -225,7 +225,6 @@ def plotting_handler3(message, stock_name, starting_date):
 
 # SAVING MONEY PLAN
 def save_money(message):
-    # global goal
     reply = bot.reply_to(
         message, "How much money do you want to save? Please enter the value in rupees.")
     bot.register_next_step_handler(reply, command_handle_any_document1)
@@ -346,7 +345,6 @@ def default_handler(message):
 
 
 def _initialize_model():
-
     mappings = {
         'plot_chart': plot_chart,
         'add_portfolio': add_portfolio,
@@ -358,10 +356,8 @@ def _initialize_model():
         'bye': bye,
         None: default_handler
     }
-
     assistant = GenericAssistant(
         'intents.json', mappings, "financial_assitant_model")
-
     # assistant.train_model()
     # assistant.save_model()
     assistant.load_model()
